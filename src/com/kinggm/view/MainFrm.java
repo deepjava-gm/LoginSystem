@@ -4,6 +4,9 @@ import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
@@ -13,12 +16,17 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
+import com.kinggm.dao.UserDao;
 import com.kinggm.model.User;
+import com.kinggm.util.DbUtil;
 
 public class MainFrm extends JFrame {
 
 	private JPanel contentPane;
     private static User user;
+    private UserDao userDao=new UserDao();
+	private DbUtil dbUtil=new DbUtil();
+	private String password;
 	/**
 	 * Launch the application.
 	 */
@@ -55,7 +63,7 @@ public class MainFrm extends JFrame {
 		JLabel label_1 = new JLabel("\u60A8\u767B\u5F55\u7684\u7528\u6237\u540D\u4E3A:");
 		label_1.setFont(new Font("宋体", Font.PLAIN, 20));
 		
-		JLabel lblpassword = new JLabel("\u5BC6\u7801\u4E3A(\u53EA\u663E\u793Apassword):");
+		JLabel lblpassword = new JLabel("\u5BC6\u7801\u4E3A:");
 		lblpassword.setFont(new Font("宋体", Font.PLAIN, 20));
 		
 		JLabel mainName = new JLabel("\u7528\u6237\u540D");
@@ -72,14 +80,31 @@ public class MainFrm extends JFrame {
 		if(user==null) {
 			
 		}else {
-			mainName.setText(user.getName());
-			mainPassword.setText(user.getPassword());
+			try {
+				mainName.setText(user.getName());
+				Connection con=dbUtil.getCon();	
+				ResultSet rs= userDao.searchPassword(con, user);
+				
+				while (rs.next()) {
+					password= rs.getString("password");
+					
+				}      //密码输入框得不到密码   需要从数据库查询
+
+				mainPassword.setText(password);
+				
+			} catch (SQLException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			} catch (Exception e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
 		}
 		
 		
 		//退出登录
 		btnLogout.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
+			public void actionPerformed(ActionEvent e ) {
 				
 				
 				LogOut(e);
@@ -103,12 +128,13 @@ public class MainFrm extends JFrame {
 			// 修改密码
 			public void actionPerformed(ActionEvent e) {
 				
-				
+				changePassword(e,user);
 				
 				
 				
 			}
-			
+
+	
 			
 			
 			
@@ -162,7 +188,7 @@ public class MainFrm extends JFrame {
 		);
 		contentPane.setLayout(gl_contentPane);
 		//设置窗体居中显示
-		this.setLocationRelativeTo(null);
+				this.setLocationRelativeTo(null);
 	}
 
 	
@@ -173,6 +199,15 @@ public class MainFrm extends JFrame {
 		
 		dispose();
 		new LogOnFrm().setVisible(true);;
+		
+	}
+	
+	
+	//跳转修改密码页面
+	private void changePassword(ActionEvent e,User user) {
+		
+		dispose();
+		new ModifyPassword(user).setVisible(true);
 		
 	}
 	

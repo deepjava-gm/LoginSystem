@@ -61,6 +61,39 @@ public class UserDao {
 			
 			
 		}
+		
+		//–ﬁ∏ƒ√‹¬Î
+		
+		public int modifyPassword(Connection con,User user) throws Exception{
+			String sql="update t_user set password=? where userName=?";
+			PreparedStatement psmt=con.prepareStatement(sql);
+			psmt.setString(1, user.getPassword());
+			psmt.setString(2, user.getName());	
+			return psmt.executeUpdate();
+		
+			
+			
+		
+			
+			
+		}
+		
+		
+		
+		//≤È—Ø√‹¬Î
+		public ResultSet searchPassword(Connection con,User user)throws Exception {
+			String sql="select * from t_user  where userName=?";
+			PreparedStatement psmt=con.prepareStatement(sql);
+			psmt.setString(1, user.getName());
+			
+			 return psmt.executeQuery(); 
+			
+		}
+		
+		
+		
+		
+		
 	
 	
 }
