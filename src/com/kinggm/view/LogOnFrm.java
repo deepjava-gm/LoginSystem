@@ -4,8 +4,10 @@ import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.BufferedWriter;
+import java.io.FileReader;
+import java.io.IOException;
 import java.sql.Connection;
-
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
 import javax.swing.JButton;
@@ -18,25 +20,33 @@ import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.border.EmptyBorder;
-
 import com.kinggm.dao.UserDao;
 import com.kinggm.model.User;
 import com.kinggm.util.DbUtil;
 import com.kinggm.util.StringUtil;
 
+
+import java.util.Properties;
+import java.io.*;
 public class LogOnFrm extends JFrame {
 
 	private JPanel contentPane;
-	private JTextField userNameTxt;
-	private JPasswordField passwordTxt;
+	private static JTextField userNameTxt;
+	private static JPasswordField passwordTxt;
 	private DbUtil dbUtil=new DbUtil();
 	private UserDao userDao=new UserDao();
-	
-
+	private static JCheckBox rememberChe;
+	private static boolean isSelected;
+	static Properties pro= new Properties();
+	private static String username="";
+	private static String password="";
+	static BufferedWriter out=null;
+	static ClassLoader classLoader;
 	/**
 	 * Launch the application.
+	 * @throws IOException 
 	 */
-	public static void main(String[] args) {
+	public static void main(String[] args) throws IOException {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
@@ -47,12 +57,26 @@ public class LogOnFrm extends JFrame {
 				}
 			}
 		});
+		//加载用户选择的记住密码选项
+		classLoader= LogOnFrm.class.getClassLoader();
+		pro.load(classLoader.getResourceAsStream("user_information.properties"));
+		isSelected=Boolean.parseBoolean(pro.getProperty("isSelected"));
+		username=pro.getProperty("username");
+		password=pro.getProperty("password");
+		
+		System.out.println(isSelected+" "+username+" "+password);
+		
+				
+			
+				
+
 	}
 
 	/**
 	 * Create the frame.
+	 * @throws IOException 
 	 */
-	public LogOnFrm( ) {
+	public LogOnFrm( ) throws IOException {
 		setResizable(false);
 		setTitle("\u767B\u5F55\u754C\u9762");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -78,7 +102,16 @@ public class LogOnFrm extends JFrame {
 		passwordTxt.setFont(new Font("宋体", Font.PLAIN, 20));
 		passwordTxt.setColumns(10);
 		
-		JCheckBox rememberChe = new JCheckBox("\u8BB0\u4F4F\u5BC6\u7801");
+		 rememberChe = new JCheckBox("\u8BB0\u4F4F\u5BC6\u7801");
+		rememberChe.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {       //checkBox 时间响应
+				
+				rememberPassword(e);
+				
+			}
+
+		
+		});
 		
 		JButton btnNewButton = new JButton("\u767B\u5F55");
 		
@@ -198,8 +231,8 @@ public class LogOnFrm extends JFrame {
 
 		//设置窗体居中显示
 		this.setLocationRelativeTo(null);
-		
-		
+		initSelected();
+
 	}
 	
 	
@@ -240,7 +273,6 @@ public class LogOnFrm extends JFrame {
 			con=dbUtil.getCon();
 		User current=userDao.login(con, user);
 		if(current!=null) {
-			
 			dispose();
 			new MainFrm(current).setVisible(true);
 			
@@ -256,9 +288,55 @@ public class LogOnFrm extends JFrame {
 	}
 	
 	
-
+	
+	private void rememberPassword(ActionEvent e) {
+		
+		try {
+			 out = new BufferedWriter(new FileWriter("D:\\Eclipse_J2EE_workspace\\LoginSystem\\src\\user_information.properties"));
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		if(rememberChe.isSelected()) {  //选中状态
+		
+			System.out.println("选中");
+			isSelected=true;
+	
+			pro.setProperty("isSelected", "true");
+			pro.setProperty("username", userNameTxt.getText());
+			pro.setProperty("password", passwordTxt.getText());
+			try {
+				pro.store(out,"");
+				System.out.println("设置Pro成功");
+			} catch (IOException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+			
+			
+		}else {
+			System.out.println("未选中");
+			isSelected=false;
+			pro.setProperty("isSelected", "false");
+			pro.setProperty("username","");
+			pro.setProperty("password","");
+			try {
+				pro.store(out, "");
+				System.out.println("设置Pro成功");
+			} catch (IOException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+		}
+	}
 	
 	
+	public static void initSelected() throws IOException {
+		
+			userNameTxt.setText(username);
+			passwordTxt.setText(password);
+			rememberChe.setSelected(isSelected);
+	}
 	
 	
 	

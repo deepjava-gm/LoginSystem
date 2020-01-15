@@ -4,6 +4,7 @@ import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -107,7 +108,12 @@ public class MainFrm extends JFrame {
 			public void actionPerformed(ActionEvent e ) {
 				
 				
-				LogOut(e);
+				try {
+					LogOut(e);
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
 				
 				
 				
@@ -194,7 +200,7 @@ public class MainFrm extends JFrame {
 	
 	//ÍË³öµÇÂ¼
 	
-	private void LogOut(ActionEvent e) {
+	private void LogOut(ActionEvent e) throws IOException {
 		// TODO Auto-generated method stub
 		
 		dispose();
